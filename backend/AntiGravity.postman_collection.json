@@ -1,0 +1,158 @@
+{
+  "info": {
+    "name": "AntiGravity Backend",
+    "description": "Full API collection for the AntiGravity dark-period forensics backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "agentAddress",
+      "value": "0x0000000000000000000000000000000000000001",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Root",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/",
+            "description": "Service info and status"
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health",
+            "description": "Quick health probe"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Twin Data",
+      "item": [
+        {
+          "name": "Get Current Twin State",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/twin/current",
+            "description": "Returns the latest digital twin state from in-memory cache or MongoDB"
+          }
+        },
+        {
+          "name": "Get Twin History",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/twin/history",
+            "description": "Returns the last 20 twin snapshots, newest first"
+          }
+        },
+        {
+          "name": "Get Current Merkle Root",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/twin/merkle",
+            "description": "Builds and returns the Merkle root of the current twin state"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Agent",
+      "item": [
+        {
+          "name": "Manual Anchor",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/agent/anchor",
+            "description": "Manually triggers a Merkle-root anchor to the blockchain"
+          }
+        },
+        {
+          "name": "Get Agent Rank",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/agent/rank/{{agentAddress}}",
+            "description": "Returns the on-chain rank for the given agent address"
+          }
+        },
+        {
+          "name": "Get Leaderboard",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/agent/leaderboard",
+            "description": "Returns the top 10 agents by score from the blockchain"
+          }
+        },
+        {
+          "name": "Get Agent Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/agent/stats/{{agentAddress}}",
+            "description": "Returns stored statistics for a given agent address from MongoDB"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Forensics",
+      "item": [
+        {
+          "name": "Get Forensic Report",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/forensics/report/6800000000000000000000aa",
+            "description": "Retrieve a forensic report by its MongoDB ObjectId"
+          }
+        },
+        {
+          "name": "Get Tamper Count",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/forensics/tamper-count",
+            "description": "Returns total number of detected tamper events"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Simulation",
+      "item": [
+        {
+          "name": "1. Start Attack",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/simulate/attack",
+            "description": "Declares a dark period: stops polling, anchors pre-attack root, emits ATTACK_STARTED.\n\nRun this FIRST."
+          }
+        },
+        {
+          "name": "2. Inject Tamper",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/simulate/inject-tamper",
+            "description": "Injects impossible values into the twin state (temp→450°C, pm25→99999, etc.).\n\nRun this AFTER /attack."
+          }
+        },
+        {
+          "name": "3. Recover",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/simulate/recover",
+            "description": "Restarts polling, compares Merkle roots, runs Gemini AI forensics if tampered, pins report to IPFS, ends dark period on-chain.\n\nRun this LAST."
+          }
+        }
+      ]
+    }
+  ]
+}
