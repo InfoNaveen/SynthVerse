@@ -1,0 +1,12 @@
+node_modules
+.env
+cache
+# Keep artifacts for ABI sharing with backend/frontend:
+# artifacts/
+coverage
+coverage.json
+typechain
+typechain-types
+*.tsbuildinfo
+# Keep deployed-addresses for team integration:
+# deployed-addresses.json
