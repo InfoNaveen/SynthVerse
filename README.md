@@ -48,7 +48,7 @@ During dark periods, attackers silently tamper with digital twin state — modif
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                                                                     │
-│    ① MONITOR        ② DETECT          ③ PROVE          ④ REWARD    │
+│    ① MONITOR        ② DETECT          ③ PROVE          ④ REWARD     │
 │                                                                     │
 │    Live twin data   Infrastructure    AI-powered       Agents earn  │
 │    is Merkle-hashed attack detected   forensic diff    AGVT tokens  │
@@ -56,13 +56,13 @@ During dark periods, attackers silently tamper with digital twin state — modif
 │    on Polygon       declared          + IPFS storage   contribution │
 │                                                                     │
 │    ┌───────────┐    ┌───────────┐    ┌───────────┐    ┌───────────┐ │
-│    │ Twin Data │───▶│Dark Period│───▶│ Forensics │───▶│Leaderboard│ │
+│    │ Twin Data │───▶│Dark Period│───▶│ Forensics │───▶│Leaderboard│
 │    │  Anchor   │    │ Detection │    │  Report   │    │  & Ranks  │ │
 │    └───────────┘    └───────────┘    └───────────┘    └───────────┘ │
 │         │                │                │                │        │
 │         ▼                ▼                ▼                ▼        │
 │    ┌──────────────────────────────────────────────────────────────┐ │
-│    │               POLYGON AMOY BLOCKCHAIN                       │ │
+│    │               POLYGON AMOY BLOCKCHAIN                        │  │
 │    └──────────────────────────────────────────────────────────────┘ │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -174,12 +174,12 @@ Agents earn **AGVT** tokens for anchoring state and submitting evidence. Ranks a
 
 ```
   ╔══════════════════════════════════════════════════════════════╗
-  ║                                                              ║
-  ║   👻  GHOST       0 – 999 AGVT        "Fresh recruit"       ║
-  ║   👤  PHANTOM     1,000 – 4,999       "Proven watcher"      ║
-  ║   💀  WRAITH      5,000 – 19,999      "Veteran sentinel"    ║
-  ║   🔮  SPECTER     20,000+             "Elite operative"     ║
-  ║                                                              ║
+                                                               
+      👻  GHOST       0 – 999 AGVT        "Fresh recruit"        
+      👤  PHANTOM     1,000 – 4,999       "Proven watcher"       
+      💀  WRAITH      5,000 – 19,999      "Veteran sentinel"     
+      🔮  SPECTER     20,000+             "Elite operative"      
+                                                                 
   ╚══════════════════════════════════════════════════════════════╝
 ```
 
@@ -302,7 +302,7 @@ Experience the full attack → detect → prove → reward lifecycle:
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                         DEMO SEQUENCE                            │
+│                          DEMO SEQUENCE                           │
 ├──────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  STEP 1 ─ OBSERVE                                                │
@@ -311,7 +311,7 @@ Experience the full attack → detect → prove → reward lifecycle:
 │     Merkle roots being anchored to Polygon every 60s             │
 │                                                                  │
 │  STEP 2 ─ ATTACK                                                 │
-│  └─ Click "⚡ SIMULATE ATTACK" in the Attack Simulator          │
+│ └─ Click "⚡ SIMULATE ATTACK" in the Attack Simulator           │
 │     Dashboard goes red. Dark period declared on-chain.           │
 │     All data feeds are now under threat.                         │
 │                                                                  │
@@ -323,13 +323,13 @@ Experience the full attack → detect → prove → reward lifecycle:
 │  STEP 4 ─ RECOVER                                                │
 │  └─ Click "🔄 RECOVER" to restore systems                       │
 │     Gemini AI performs forensic diff analysis.                   │
-│     Report pinned to IPFS, hash anchored on Polygon.            │
-│     Agent receives AGVT reward + rank update.                   │
+│     Report pinned to IPFS, hash anchored on Polygon.             │
+│     Agent receives AGVT reward + rank update.                    │
 │                                                                  │
 │  STEP 5 ─ VERIFY                                                 │
-│  └─ Check /agents for your rank & rewards                       │
-│     Check /leaderboard to see community standings               │
-│     View forensic report on-chain via PolygonScan               │
+│  └─ Check /agents for your rank & rewards                        │
+│     Check /leaderboard to see community standings                │
+│     View forensic report on-chain via PolygonScan                │
 │                                                                  │
 └──────────────────────────────────────────────────────────────────┘
 ```
