@@ -1,14 +1,18 @@
 "use client";
 
 import { useWallet } from "@/hooks/useWallet";
+import { useSocket } from "@/hooks/useSocket";
 import AgentPanel from "@/components/AgentPanel";
 import { ShieldPlus } from "lucide-react";
 import WalletConnect from "@/components/WalletConnect";
 import Navbar from "@/components/Navbar";
 import { motion } from "framer-motion";
+import { useState } from "react";
 
 export default function AgentsPage() {
   const { connected } = useWallet();
+  const { triggerAnchorTx } = useSocket();
+  const [isAnchoring, setIsAnchoring] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -68,9 +72,17 @@ export default function AgentsPage() {
                   Manually anchor the latest Merkle root to the Polygon blockchain.
                   Costs MATIC for gas, rewards 100 AGVT upon success.
                 </p>
-                <button className="px-6 py-3 bg-primary text-[#0a0a0f] font-bold font-mono hover:bg-primary/90 transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(0,255,136,0.3)]">
-                  <span className="w-2 h-2 rounded-full bg-[#0a0a0f] animate-pulse-fast" />
-                  INITIATE ANCHOR TX
+                <button 
+                  onClick={async () => {
+                    setIsAnchoring(true);
+                    await triggerAnchorTx();
+                    setTimeout(() => setIsAnchoring(false), 2000);
+                  }}
+                  disabled={isAnchoring}
+                  className={`px-6 py-3 ${isAnchoring ? 'bg-primary/50' : 'bg-primary hover:bg-primary/90'} text-[#0a0a0f] font-bold font-mono transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(0,255,136,0.3)]`}
+                >
+                  <span className={`w-2 h-2 rounded-full bg-[#0a0a0f] ${isAnchoring ? 'animate-pulse' : 'animate-pulse-fast'}`} />
+                  {isAnchoring ? "ANCHORING..." : "INITIATE ANCHOR TX"}
                 </button>
               </div>
             </motion.div>

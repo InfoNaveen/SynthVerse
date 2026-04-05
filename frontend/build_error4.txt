@@ -1,0 +1,24 @@
+
+> antigravity-frontend@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.3
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+
+Failed to compile.
+
+./node_modules/ox/core/internal/abiParameters.ts:451:24
+Type error: Argument of type 'string | number | bigint | boolean | readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly ...[])[])[])[])[])[])[])[])[])[])[] | readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly ...[])[])[])[])[])[])[])...' is not assignable to parameter of type 'readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly ...[])[])[])[])[])[])[])[])[])[])[] | readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly ...[])[])[])[])[])[])[])[])[])[])[]'.
+  Type 'string' is not assignable to type 'readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly ...[])[])[])[])[])[])[])[])[])[])[] | readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly (readonly ...[])[])[])[])[])[])[])[])[])[])[]'.
+
+[0m [90m 449 |[39m   [36mif[39m (arrayComponents) {[0m
+[0m [90m 450 |[39m     [36mconst[39m [length[33m,[39m type] [33m=[39m arrayComponents[0m
+[0m[31m[1m>[22m[39m[90m 451 |[39m     [36mreturn[39m encodeArray(value[33m,[39m {[0m
+[0m [90m     |[39m                        [31m[1m^[22m[39m[0m
+[0m [90m 452 |[39m       checksumAddress[33m,[39m[0m
+[0m [90m 453 |[39m       length[33m,[39m[0m
+[0m [90m 454 |[39m       parameter[33m:[39m {[0m

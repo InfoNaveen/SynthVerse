@@ -1,144 +1,198 @@
-"use client";
+'use client';
+import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useReadContract } from 'wagmi';
+import { ANCHOR_ABI, CONTRACTS } from '@/lib/contracts';
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Shield, Users, Activity } from "lucide-react";
+const STATS = [
+  { value: "< 90s", label: "Detection Time" },
+  { value: "100%", label: "On-Chain Proof" },
+  { value: "∞", label: "Dark Periods Survived" },
+];
 
 export default function Home() {
-  const [tamperCount, setTamperCount] = useState<number | null>(null);
-  const [backendOnline, setBackendOnline] = useState(false);
+  const [tick, setTick] = useState(0);
+
+  const { data: tamperCount } = useReadContract({
+    address: CONTRACTS.ANCHOR as `0x${string}`,
+    abi: ANCHOR_ABI,
+    functionName: 'getTamperCount',
+  });
 
   useEffect(() => {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) return;
-    const fetchCount = async () => {
-      try {
-        const res = await fetch(
-          `${backendUrl.replace("ws", "http")}/api/forensics/tamper-count`
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setTamperCount(data.count ?? 0);
-          setBackendOnline(true);
-        }
-      } catch {
-        setBackendOnline(false);
-      }
-    };
-    fetchCount();
-    const iv = setInterval(fetchCount, 10000);
-    return () => clearInterval(iv);
+    // Tick for terminal cursor
+    const interval = setInterval(() => {
+      setTick(t => t + 1);
+    }, 500);
+    return () => clearInterval(interval);
   }, []);
 
-  const tickerText =
-    "BLOCKCHAIN ANCHORED  //  DARK PERIOD FORENSICS  //  REAL-TIME THREAT DETECTION  //  POLYGON AMOY TESTNET  //  ";
-
   return (
-    <div className="relative min-h-screen flex flex-col overflow-hidden bg-[#0a0a0f]">
-      {/* Dot grid background */}
-      <div className="absolute inset-0 dot-grid opacity-40 pointer-events-none" />
+    <main className="min-h-screen bg-[#0a0a0f] overflow-hidden relative">
+      
+      {/* Background grid */}
+      <div className="bg-grid opacity-30"/>
+      
+      {/* Glow orbs */}
+      <div className="fixed top-1/4 left-1/4 w-96 h-96 bg-[#00ff88]/5 rounded-full blur-3xl pointer-events-none"/>
+      <div className="fixed bottom-1/4 right-1/4 w-96 h-96 bg-[#0088ff]/5 rounded-full blur-3xl pointer-events-none"/>
 
-      {/* Radial glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-primary/5 rounded-full blur-[160px] pointer-events-none" />
+      {/* Content */}
+      <div className="relative z-10 max-w-6xl mx-auto px-6 pt-32 pb-20">
+        
+        {/* Status badge */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex justify-center mb-8"
+        >
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#00ff88]/5 border border-[#00ff88]/20">
+            <div className="status-dot"/>
+            <span className="text-[#00ff88] text-xs font-mono tracking-widest">
+              SYSTEM ONLINE // POLYGON AMOY
+            </span>
+          </div>
+        </motion.div>
 
-      {/* System Online tag */}
-      <div className="relative z-10 px-6 pt-6">
-        <div className="flex items-center gap-2 font-mono text-xs text-primary">
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse-fast" />
-          ⚡ SYSTEM ONLINE // GRID ACTIVE
-        </div>
-      </div>
-
-      {/* Hero Center */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6">
+        {/* Main heading */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center max-w-3xl"
+          transition={{ delay: 0.1 }}
+          className="text-center mb-6"
         >
-          {/* Glitch title */}
-          <h1 className="mb-4">
-            <span
-              className="glitch-text block text-7xl md:text-9xl font-black tracking-tighter leading-none text-white"
-              data-text="ANTI"
-            >
-              ANTI
-            </span>
-            <span
-              className="glitch-text block text-7xl md:text-9xl font-black tracking-tighter leading-none text-primary"
-              data-text="GRAVITY"
-            >
-              GRAVITY
-            </span>
+          <h1 className="text-7xl md:text-9xl font-black tracking-tighter leading-none text-white"
+            style={{
+              textShadow: '0 0 80px rgba(0,255,136,0.1)'
+            }}
+          >
+            ECLIPSIS
           </h1>
-
-          {/* Subtitle */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-            className="space-y-1 mb-8"
-          >
-            <p className="font-mono text-lg md:text-xl text-[#64748b]">
-              The metaverse went dark.
-            </p>
-            <p className="font-mono text-lg md:text-xl text-[#e2e8f0]">
-              We made sure nothing went unaccounted for.
-            </p>
-          </motion.div>
-
-          {/* Tamper counter */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-            className="inline-flex items-center gap-3 px-6 py-3 border border-border bg-card/60 backdrop-blur-sm mb-10 font-mono text-sm"
-          >
-            <Activity className="w-4 h-4 text-primary animate-pulse-fast" />
-            <span className="text-primary font-bold text-lg">
-              [ {backendOnline && tamperCount !== null ? tamperCount : "--"} ]
-            </span>
-            <span className="text-muted-foreground">TAMPER EVENTS BLOCKED</span>
-          </motion.div>
-
-          {/* Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.5 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
-            <Link href="/dashboard">
-              <button className="group px-8 py-4 border-2 border-primary text-primary font-mono font-bold uppercase tracking-widest hover:bg-primary hover:text-[#0a0a0f] transition-all duration-300 flex items-center gap-3">
-                <Shield className="w-5 h-5" />
-                INITIALIZE SOC
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity">
-                  →
-                </span>
-              </button>
-            </Link>
-            <Link href="/agents">
-              <button className="group px-8 py-4 border-2 border-border text-muted-foreground font-mono font-bold uppercase tracking-widest hover:border-primary hover:text-primary transition-all duration-300 flex items-center gap-3">
-                <Users className="w-5 h-5" />
-                VIEW AGENTS
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity">
-                  →
-                </span>
-              </button>
-            </Link>
-          </motion.div>
+          <div className="text-[#00ff88] font-mono text-sm tracking-[0.3em] mt-4 opacity-70">
+            // DARK PERIOD FORENSICS
+          </div>
         </motion.div>
-      </main>
+
+        {/* Tagline */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-center mb-12"
+        >
+          <p className="text-gray-400 text-xl max-w-2xl mx-auto leading-relaxed">
+            When cloud infrastructure collapses under attack,
+            <span className="text-white"> ECLIPSIS </span>
+            ensures every dark period is forensically recorded,
+            tamper-proof, and permanently on-chain.
+          </p>
+        </motion.div>
+
+        {/* Live counter */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="flex justify-center mb-12"
+        >
+          <div className="glass px-8 py-4 border border-[#00ff88]/10 flex items-center gap-4">
+            <span className="text-4xl font-bold font-mono text-[#00ff88]"
+              style={{
+                textShadow: '0 0 20px rgba(0,255,136,0.5)'
+              }}
+            >
+              {tamperCount !== undefined ? Number(tamperCount) : '—'}
+            </span>
+            <div>
+              <div className="text-white text-sm font-mono">
+                TAMPER EVENTS
+              </div>
+              <div className="text-gray-500 text-xs tracking-widest uppercase mt-1">
+                DETECTED & ANCHORED
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* CTA Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="flex gap-4 justify-center mb-20"
+        >
+          <Link href="/dashboard">
+            <button className="px-8 py-4 rounded-xl bg-[#00ff88] text-black font-bold hover:bg-[#00ff88]/90 transition-all hover:shadow-[0_0_20px_rgba(0,255,136,0.4)] hover:-translate-y-0.5 font-mono tracking-wider text-sm flex items-center gap-2">
+              <span className="animate-pulse">◉</span> INITIALIZE SOC
+            </button>
+          </Link>
+          <Link href="/agents">
+            <button className="px-8 py-4 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-all hover:-translate-y-0.5 font-mono tracking-wider text-sm">
+              ◈ VIEW AGENTS
+            </button>
+          </Link>
+        </motion.div>
+
+        {/* Stats row */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto mb-20"
+        >
+          {STATS.map((stat, i) => (
+            <div key={i} className="glass p-6 text-center border border-white/5 hover:border-[#00ff88]/20 transition-all">
+              <div className="text-2xl font-bold font-mono text-white mb-1">
+                {stat.value}
+              </div>
+              <div className="text-xs text-gray-500 uppercase tracking-widest">
+                {stat.label}
+              </div>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Feature pills */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+          className="flex flex-wrap gap-3 justify-center"
+        >
+          {[
+            "⛓ Blockchain Anchored",
+            "🔬 AI Forensics",
+            "🌐 Real-time Data",
+            "🎮 Gamified Agents",
+            "🔴 Attack Detection",
+            "📊 Live Leaderboard",
+          ].map((pill, i) => (
+            <span key={i} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-gray-400 text-xs font-mono hover:border-[#00ff88]/30 hover:text-[#00ff88] transition-all hover:shadow-[0_0_15px_rgba(0,255,136,0.1)]">
+              {pill}
+            </span>
+          ))}
+        </motion.div>
+      </div>
 
       {/* Bottom ticker */}
-      <div className="relative z-10 border-t border-border bg-card/40 backdrop-blur-sm overflow-hidden py-3">
-        <div className="ticker-scroll font-mono text-xs text-muted-foreground whitespace-nowrap">
-          <span>{tickerText.repeat(4)}</span>
-          <span>{tickerText.repeat(4)}</span>
+      <div className="fixed bottom-0 left-0 right-0 border-t border-white/5 bg-[#0a0a0f]/90 backdrop-blur-xl py-2 overflow-hidden z-20">
+        <div className="flex gap-8 animate-marquee whitespace-nowrap text-xs font-mono text-gray-500 tracking-widest">
+          {Array(5).fill([
+            "BLOCKCHAIN ANCHORED",
+            "DARK PERIOD FORENSICS",
+            "REAL-TIME THREAT DETECTION",
+            "POLYGON AMOY TESTNET",
+            "AI POWERED ANALYSIS",
+            "ECLIPSIS PROTOCOL ACTIVE",
+          ]).flat().map((text, i) => (
+            <span key={i} className="flex items-center gap-8">
+              {text}
+              <span className="text-[#00ff88] opacity-50">◆</span>
+            </span>
+          ))}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

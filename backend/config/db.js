@@ -9,6 +9,7 @@ async function connectDB() {
 
   if (!uri) {
     console.warn('[DB] MONGODB_URI not set — running without database');
+    mongoose.set('bufferCommands', false);
     return;
   }
 

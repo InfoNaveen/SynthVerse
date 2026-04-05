@@ -14,21 +14,29 @@ import {
 } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import MerkleViewer from "./MerkleViewer";
+import { useReadContract } from "wagmi";
+import { ANCHOR_ABI, CONTRACTS } from "@/lib/contracts";
 
 export default function TwinPanel() {
   const { isAttackActive, connected } = useSocket();
   const { current, history, lastUpdated } = useTwinData();
 
+  const { data: anchorHistory } = useReadContract({
+    address: CONTRACTS.ANCHOR as `0x${string}`,
+    abi: ANCHOR_ABI,
+    functionName: "getMerkleHistory",
+    args: [BigInt(5)],
+  });
+
   const chartData =
     history.length > 0
-      ? history.map((d, i) => ({ time: i, temp: d.temperature ?? 0 }))
+      ? history.map((d: any, i: number) => ({ time: i, temp: d.temperature ?? 0 }))
       : [];
 
-  const mockAnchors = [
-    { root: "0x12bcf456def7890a123abc456def7890", timestamp: Date.now() - 60000 },
-    { root: "0x890a123abc456def789012bcf456def7", timestamp: Date.now() - 120000 },
-    { root: "0xdef789012bcf456def7890a123abc456", timestamp: Date.now() - 180000 },
-  ];
+  const formattedAnchors = (anchorHistory as any[])?.map((a: any) => ({
+    root: a.root,
+    timestamp: Number(a.timestamp),
+  })).reverse() || [];
 
   const rows = [
     { icon: <Thermometer className="w-4 h-4" />, label: "TEMPERATURE", value: current ? formatNumber(current.temperature, 1) : "—", unit: "°C" },
@@ -134,7 +142,7 @@ export default function TwinPanel() {
           <div className="text-[10px] text-muted-foreground font-mono mb-1">
             LAST UPDATED: {new Date(lastUpdated).toISOString()}
           </div>
-          <MerkleViewer history={mockAnchors} />
+          <MerkleViewer history={formattedAnchors} />
         </div>
       </div>
     </motion.div>

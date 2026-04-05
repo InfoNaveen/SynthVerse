@@ -18,12 +18,36 @@ export default function AgentPanel() {
 
   if (!connected) {
     return (
-      <div className="soc-panel h-full flex flex-col items-center justify-center text-center p-8">
-        <User className="w-12 h-12 text-muted-foreground mb-4 opacity-30" />
-        <h3 className="text-lg font-mono font-bold text-muted-foreground mb-2">AGENT OFFLINE</h3>
-        <p className="text-xs font-mono text-muted-foreground/60 max-w-[220px]">
-          Connect wallet to sync agent profile and view active quests.
-        </p>
+      <div className="soc-panel h-full flex flex-col p-6 font-mono">
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 rounded-full bg-muted/20 border border-muted/30 flex items-center justify-center mx-auto mb-4 grayscale">
+            <User className="w-8 h-8 text-muted-foreground opacity-50" />
+          </div>
+          <h3 className="text-lg font-bold text-muted-foreground">AGENT DISCONNECTED</h3>
+          <p className="text-[10px] text-muted-foreground/50 mt-1 uppercase tracking-widest">Connect Wallet to Rank Up</p>
+        </div>
+
+        <div className="flex-1 flex flex-col justify-center space-y-4">
+          <div className="text-[10px] text-muted-foreground/40 mb-2 uppercase tracking-[0.2em]">Rank Hierarchy</div>
+          {[
+            { rank: "SPECTER", xp: "20,000+ AGVT", active: false },
+            { rank: "WRAITH", xp: "5,000+ AGVT", active: false },
+            { rank: "PHANTOM", xp: "1,000+ AGVT", active: false },
+            { rank: "GHOST", xp: "0+ AGVT", active: true },
+          ].map((r, i) => (
+            <div key={i} className={`flex items-center justify-between p-3 border ${r.active ? "border-primary/50 bg-primary/5 text-primary" : "border-border/30 text-muted-foreground opacity-40"} transition-all`}>
+              <div className="flex items-center gap-3">
+                <Award className={`w-4 h-4 ${r.active ? "text-primary" : "text-muted-foreground"}`} />
+                <span className="text-xs font-bold tracking-widest">{r.rank}</span>
+              </div>
+              <span className="text-[10px]">{r.xp}</span>
+            </div>
+          ))}
+        </div>
+        
+        <div className="mt-6 p-3 border border-dashed border-border/50 text-center text-[10px] text-muted-foreground leading-relaxed uppercase tracking-widest">
+          Awaiting Network Authorization...
+        </div>
       </div>
     );
   }

@@ -1,7 +1,8 @@
 // Contract addresses (Polygon Amoy Testnet)
 export const CONTRACTS = {
-  AGVT_TOKEN: process.env.NEXT_PUBLIC_AGVT_ADDRESS || "",
-  FORENSICS_NFT: process.env.NEXT_PUBLIC_FORENSICS_NFT_ADDRESS || "",
+  AGVT_TOKEN: process.env.NEXT_PUBLIC_CONTRACT_TOKEN || "",
+  ANCHOR: process.env.NEXT_PUBLIC_CONTRACT_ANCHOR || "",
+  FORENSICS_NFT: process.env.NEXT_PUBLIC_CONTRACT_FORENSICS || "",
 };
 
 // Minimal ABI for AGVT token (ERC20)
@@ -10,6 +11,14 @@ export const AGVT_ABI = [
   "function totalSupply() view returns (uint256)",
   "function symbol() view returns (string)",
   "function decimals() view returns (uint8)",
+  "function getLeaderboard() view returns (address[] memory topAgents, uint256[] memory balances)",
+  "function getAgentRank(address agent) view returns (string memory rank)",
+];
+
+export const ANCHOR_ABI = [
+  "function getMerkleCount() view returns (uint256 count)",
+  "function getDarkPeriodCount() view returns (uint256 count)",
+  "function getTamperCount() view returns (uint256 count)",
 ];
 
 // Polygon Amoy chain config

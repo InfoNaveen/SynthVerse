@@ -14,7 +14,7 @@ function init(socketIO) {
 // ─── Fetch weather from OpenWeatherMap ─────────────────────
 async function fetchWeather() {
   try {
-    const key = process.env.OPENWEATHERMAP_API_KEY;
+    const key = process.env.OPENWEATHER_API_KEY;
     if (!key) throw new Error('OPENWEATHERMAP_API_KEY not set');
 
     const { data } = await axios.get(

@@ -1,8 +1,8 @@
-# AntiGravity Backend
+# ECLIPSIS Backend
 
 > Decentralized dark-period forensics and accountability layer for metaverse digital twins.
 
-When cloud infrastructure is attacked, metaverse platforms go dark. AntiGravity prevents silent data tampering during these **dark periods** by:
+When cloud infrastructure is attacked, metaverse platforms go dark. ECLIPSIS prevents silent data tampering during these **dark periods** by:
 
 - 📡 **Polling real-world APIs** every 60 seconds (weather, air quality, traffic)
 - 🌳 **Building Merkle trees** of digital twin state
@@ -24,7 +24,7 @@ When cloud infrastructure is attacked, metaverse platforms go dark. AntiGravity 
 ### 2. Install
 
 ```bash
-cd antigravity/backend
+cd eclipsis/backend
 npm install
 ```
 
@@ -170,10 +170,10 @@ If these files are missing, all blockchain calls will gracefully fail with warni
 After contracts are deployed with Hardhat, copy ABI files to the `abi/` folder:
 
 ```bash
-# From the project root (antigravity/)
-cp contracts/artifacts/contracts/AntiGravityAnchor.sol/AntiGravityAnchor.json backend/abi/
-cp contracts/artifacts/contracts/AntiGravityToken.sol/AntiGravityToken.json backend/abi/
-cp contracts/artifacts/contracts/AntiGravityForensics.sol/AntiGravityForensics.json backend/abi/
+# From the project root (eclipsis/)
+cp contracts/artifacts/contracts/ECLIPSISAnchor.sol/ECLIPSISAnchor.json backend/abi/
+cp contracts/artifacts/contracts/ECLIPSISToken.sol/ECLIPSISToken.json backend/abi/
+cp contracts/artifacts/contracts/ECLIPSISForensics.sol/ECLIPSISForensics.json backend/abi/
 ```
 
 The `blockchainService.js` will auto-detect ABIs from either location.

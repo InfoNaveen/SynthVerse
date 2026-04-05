@@ -1,0 +1,57 @@
+﻿Starting deployment test...
+TokenFactory retrieved. Type: object
+Deploy function type: function
+node.exe : ProviderError: 
+insufficient funds for 
+gas * price + value: 
+balance 1087652100267915, 
+tx cost 
+38383660000000000, 
+overshot 37296007899732085
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (P  
+  roviderError: ...2960   
+ 07899732085:String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+    at 
+HttpProvider.request 
+(C:\Users\Naveen Patil\One
+Drive\Documents\ProjectX\n
+ode_modules\hardhat\src\in
+ternal\core\providers\http
+.ts:116:21)
+    at 
+processTicksAndRejections 
+(node:internal/process/tas
+k_queues:105:5)
+    at HardhatEthersSigner
+.sendTransaction 
+(C:\Users\Naveen Patil\One
+Drive\Documents\ProjectX\n
+ode_modules\@nomicfoundati
+on\hardhat-ethers\src\sign
+ers.ts:185:18)
+    at 
+ContractFactory.deploy 
+(C:\Users\Naveen Patil\One
+Drive\Documents\ProjectX\n
+ode_modules\ethers\src.ts\
+contract\factory.ts:111:24
+)
+    at main 
+(C:\Users\Naveen Patil\One
+Drive\Documents\ProjectX\s
+cripts\debug_deploy_execut
+e.js:9:17)

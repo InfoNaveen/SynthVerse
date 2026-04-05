@@ -7,10 +7,28 @@ import AgentPanel from "@/components/AgentPanel";
 import AttackSimulator from "@/components/AttackSimulator";
 import ThreatPanel from "@/components/ThreatPanel";
 import ForensicsPanel from "@/components/ForensicsPanel";
+import Panel from "@/components/ui/Panel";
 import { motion, AnimatePresence } from "framer-motion";
+import { useReadContract } from "wagmi";
+import { ANCHOR_ABI, CONTRACTS } from "@/lib/contracts";
 
 export default function DashboardPage() {
-  const { connected, isAttackActive, attackBanner, lastAnchorTime, darkPeriods, tamperCount } = useSocket();
+  const { connected, isAttackActive, attackBanner, lastAnchorTime, darkPeriods: socketDarkPeriods, tamperCount: socketTamperCount } = useSocket();
+
+  const { data: onChainDarkPeriods } = useReadContract({
+    address: CONTRACTS.ANCHOR as `0x${string}`,
+    abi: ANCHOR_ABI,
+    functionName: "getDarkPeriodCount",
+  });
+
+  const { data: onChainTamperCount } = useReadContract({
+    address: CONTRACTS.ANCHOR as `0x${string}`,
+    abi: ANCHOR_ABI,
+    functionName: "getTamperCount",
+  });
+
+  const darkPeriods = Number(onChainDarkPeriods || 0) + socketDarkPeriods;
+  const tamperCount = Number(onChainTamperCount || 0) + socketTamperCount;
 
   const anchorAgo = Math.floor((Date.now() - lastAnchorTime) / 1000);
 
@@ -48,7 +66,7 @@ export default function DashboardPage() {
           <div className="hidden md:block h-4 w-px bg-border" />
           <span>AMOY TESTNET</span>
           <div className="hidden md:block h-4 w-px bg-border" />
-          <span>Last anchor: {anchorAgo}s ago</span>
+          <span>Last anchor: {anchorAgo >= 0 ? anchorAgo : 0}s ago</span>
           <div className="hidden md:block h-4 w-px bg-border" />
           <span>Dark periods: {darkPeriods}</span>
           <div className="hidden md:block h-4 w-px bg-border" />
@@ -64,22 +82,32 @@ export default function DashboardPage() {
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-[calc(100vh-180px)]">
           {/* LEFT: Twin Panel */}
           <div className="col-span-1">
-            <TwinPanel />
+            <Panel title="LIVE DIGITAL TWIN" status="live" delay={0}>
+              <TwinPanel />
+            </Panel>
           </div>
 
           {/* CENTER: Agent + Attack */}
           <div className="col-span-1 flex flex-col gap-4">
             <div className="flex-1">
-              <AgentPanel />
+              <Panel title="AGENT PROFILE" status="live" delay={0.1}>
+                <AgentPanel />
+              </Panel>
             </div>
-            <AttackSimulator />
+            <Panel title="THREAT SIMULATION" status="danger" delay={0.2}>
+              <AttackSimulator />
+            </Panel>
           </div>
 
           {/* RIGHT: Threat + Forensics */}
           <div className="col-span-1 flex flex-col gap-4">
-            <ThreatPanel />
+            <Panel title="THREAT INTELLIGENCE" status="warning" delay={0.3}>
+              <ThreatPanel />
+            </Panel>
             <div className="flex-1">
-              <ForensicsPanel />
+              <Panel title="AI FORENSICS ENGINE" status="live" delay={0.4}>
+                <ForensicsPanel />
+              </Panel>
             </div>
           </div>
         </div>

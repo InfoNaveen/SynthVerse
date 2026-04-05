@@ -6,6 +6,8 @@ import { Trophy, Medal, Hexagon } from "lucide-react";
 import { motion } from "framer-motion";
 import { useWallet } from "@/hooks/useWallet";
 import Navbar from "@/components/Navbar";
+import { useReadContract } from "wagmi";
+import { AGVT_ABI, CONTRACTS } from "@/lib/contracts";
 
 export default function LeaderboardPage() {
   const { connected } = useSocket();
@@ -16,18 +18,32 @@ export default function LeaderboardPage() {
     setMounted(true);
   }, []);
 
-  const leaderboard = [
-    { rank: 1, address: "0x7F5...2A1b", score: 14500, badge: "SPECTER", anchors: 145 },
-    { rank: 2, address: "0x3B2...9C8d", score: 12200, badge: "WRAITH", anchors: 122 },
-    { rank: 3, address: "0x9E1...4F7c", score: 10800, badge: "PHANTOM", anchors: 108 },
-    { rank: 4, address: "0x1A4...6D9e", score: 9500, badge: "PHANTOM", anchors: 95 },
-    { rank: 5, address: "0x5C8...1B3f", score: 8100, badge: "PHANTOM", anchors: 81 },
-    { rank: 6, address: "0x8D2...5E4a", score: 6400, badge: "GHOST", anchors: 64 },
-    { rank: 7, address: address ? `${address.slice(0, 5)}...${address.slice(-4)}` : "0x4F9...8C2b", score: 5200, badge: "GHOST", anchors: 52 },
-    { rank: 8, address: "0x2E6...3A5c", score: 4800, badge: "GHOST", anchors: 48 },
-    { rank: 9, address: "0x6B1...7F9d", score: 3100, badge: "GHOST", anchors: 31 },
-    { rank: 10, address: "0x3C5...2D8e", score: 1200, badge: "GHOST", anchors: 12 },
-  ];
+  const { data: leaderboardData, isLoading } = useReadContract({
+    address: CONTRACTS.AGVT_TOKEN as `0x${string}`,
+    abi: AGVT_ABI,
+    functionName: 'getLeaderboard',
+    query: {
+      refetchInterval: 5000,
+    }
+  });
+
+  // Calculate ranks from contract return tuples
+  const leaderboard = (leaderboardData as [string[], bigint[]])?.[0]?.map((addr: string, i: number) => {
+    const scoreVal = Number((leaderboardData as [string[], bigint[]])[1][i]) / 1e18;
+    // Basic rules from Token contract logic
+    let badge = "GHOST";
+    if (scoreVal >= 20000) badge = "SPECTER";
+    else if (scoreVal >= 5000) badge = "WRAITH";
+    else if (scoreVal >= 1000) badge = "PHANTOM";
+    
+    return {
+      rank: i + 1,
+      address: addr,
+      score: scoreVal,
+      badge: badge,
+      anchors: Math.floor(scoreVal / 100), // Approximate anchors since we display it
+    };
+  }).filter((a: any) => a.address && a.address !== "0x0000000000000000000000000000000000000000") || [];
 
   if (!mounted) return null;
 
@@ -63,8 +79,12 @@ export default function LeaderboardPage() {
 
           {/* Table rows */}
           <div className="divide-y divide-border/30">
-            {leaderboard.map((agent, i) => {
-              const isCurrentUser = address && agent.address.toLowerCase().includes(address.slice(-4).toLowerCase());
+            {isLoading ? (
+               <div className="p-4 text-center text-muted-foreground font-mono text-sm">LOADING ON-CHAIN DATA...</div>
+            ) : leaderboard.length === 0 ? (
+               <div className="p-4 text-center text-muted-foreground font-mono text-sm">NO AGENTS REGISTERED YET</div>
+            ) : leaderboard.map((agent: any, i: number) => {
+              const isCurrentUser = address && agent.address.toLowerCase() === address.toLowerCase();
               return (
                 <motion.div
                   key={i}
@@ -85,7 +105,7 @@ export default function LeaderboardPage() {
                   </div>
                   <div className={`col-span-4 flex items-center gap-2 ${isCurrentUser ? "text-primary font-bold" : "text-white"}`}>
                     {isCurrentUser && <span className="w-2 h-2 rounded-full bg-primary animate-pulse-fast" />}
-                    {agent.address} {isCurrentUser && <span className="text-[10px] text-primary/70">(YOU)</span>}
+                    {agent.address.slice(0,6)}...{agent.address.slice(-4)} {isCurrentUser && <span className="text-[10px] text-primary/70">(YOU)</span>}
                   </div>
                   <div className="col-span-3 flex items-center gap-2 text-xs">
                     <Hexagon className={`w-3 h-3 ${
@@ -96,7 +116,7 @@ export default function LeaderboardPage() {
                     <span className="text-muted-foreground">{agent.badge}</span>
                   </div>
                   <div className="col-span-2 text-right text-muted-foreground">
-                    {agent.anchors}
+                    ~{agent.anchors}
                   </div>
                   <div className="col-span-2 text-right font-bold text-primary">
                     {agent.score.toLocaleString()}

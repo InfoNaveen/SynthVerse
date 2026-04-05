@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AntiGravity — Metaverse Forensics SOC",
+  title: "ECLIPSIS — Metaverse Dark Period Forensics SOC",
   description:
     "Decentralized forensics and accountability layer for metaverse digital twins. Real-time threat detection, blockchain-anchored evidence, and gamified agent rewards.",
 };
+
+import { Providers } from "@/components/Providers";
 
 export default function RootLayout({
   children,
@@ -15,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="bg-[#0a0a0f] text-[#e2e8f0] antialiased min-h-screen">
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

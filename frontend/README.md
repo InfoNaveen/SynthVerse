@@ -1,4 +1,4 @@
-# AntiGravity Frontend
+# ECLIPSIS Frontend
 
 Decentralized dark-period forensics and accountability layer for metaverse digital twins.
 

@@ -20,12 +20,11 @@ export default function ThreatPanel() {
     }
   };
 
-  const data = threatData || {
-    level: "LOW" as const,
-    activeUrls: 0,
-    recent: [],
-    blockedToday: 0,
-    lastUpdated: Date.now(),
+  const data = {
+    level: threatData?.level ?? ("LOW" as const),
+    activeThreats: threatData?.activeThreats ?? 0,
+    totalCached: threatData?.totalCached ?? 0,
+    recentUrls: threatData?.recentUrls ?? [],
   };
 
   const style = getLevelStyle(data.level);
@@ -49,10 +48,10 @@ export default function ThreatPanel() {
       </div>
 
       <div className="soc-panel-body">
-        {/* Active URLs count */}
+        {/* Active threats count */}
         <div className="mb-4">
           <div className="text-2xl font-mono text-white font-bold">
-            {data.activeUrls || "—"}
+            {data.activeThreats || "—"}
           </div>
           <div className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">
             Active Malicious URLs
@@ -62,10 +61,10 @@ export default function ThreatPanel() {
         {/* Recent threat feed */}
         <div className="space-y-1.5 mb-4">
           <AnimatePresence mode="popLayout">
-            {data.recent.length > 0 ? (
-              data.recent.map((item, i) => (
+            {data.recentUrls.length > 0 ? (
+              data.recentUrls.map((item, i) => (
                 <motion.div
-                  key={`${item.time}-${item.url}-${i}`}
+                  key={`${item.date_added}-${item.url}-${i}`}
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
@@ -73,14 +72,14 @@ export default function ThreatPanel() {
                   className="flex items-center justify-between p-2 border border-border/50 bg-[#0d1117] font-mono text-xs"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-muted-foreground">{item.time}</span>
-                    <span className="text-white">{item.url}</span>
+                    <span className="text-muted-foreground">{item.date_added ?? "—"}</span>
+                    <span className="text-white truncate max-w-[200px]">{item.url}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`px-1.5 py-0.5 text-[10px] border ${
-                      item.status === "BLOCKED" ? "border-primary/30 text-primary bg-primary/10" : "border-destructive/30 text-destructive bg-destructive/10"
+                      item.url_status === "offline" ? "border-primary/30 text-primary bg-primary/10" : "border-destructive/30 text-destructive bg-destructive/10"
                     }`}>
-                      {item.status || "ACTIVE"}
+                      {item.url_status?.toUpperCase() || "ACTIVE"}
                     </span>
                     <span className="text-destructive flex items-center gap-1">
                       {item.threat} <AlertCircle className="w-3 h-3" />
@@ -99,11 +98,9 @@ export default function ThreatPanel() {
 
         {/* Stats row */}
         <div className="flex items-center gap-4 text-[10px] font-mono text-muted-foreground border-t border-border pt-3">
-          <span>Active: {data.activeUrls || "—"}</span>
+          <span>Active: {data.activeThreats || "—"}</span>
           <span className="text-border">|</span>
-          <span>Blocked today: {data.blockedToday || "—"}</span>
-          <span className="text-border">|</span>
-          <span>Updated: {data.lastUpdated ? `${Math.floor((Date.now() - data.lastUpdated) / 1000)}s ago` : "—"}</span>
+          <span>Cached: {data.totalCached || "—"}</span>
         </div>
       </div>
     </motion.div>

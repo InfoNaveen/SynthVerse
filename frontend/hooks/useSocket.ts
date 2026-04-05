@@ -1,28 +1,30 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { io, Socket } from "socket.io-client";
 
 interface TwinData {
-  temperature: number;
-  humidity: number;
-  pm25: number;
-  traffic: number;
-  wind: number;
+  temperature?: number;
+  humidity?: number;
+  pm25?: number;
+  traffic?: number;
+  wind?: number;
+  description?: string;
+  temp?: number;
 }
 
 interface ThreatEntry {
-  time: string;
   url: string;
   threat: string;
-  status?: string;
+  url_status?: string;
+  date_added?: string;
 }
 
 interface ThreatData {
   level: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
-  activeUrls: number;
-  recent: ThreatEntry[];
-  blockedToday: number;
-  lastUpdated: number;
+  activeThreats: number;
+  totalCached: number;
+  recentUrls: ThreatEntry[];
 }
 
 interface ForensicsReport {
@@ -38,8 +40,8 @@ interface SocketState {
   isAttackActive: boolean;
   isTamperInjected: boolean;
   isRecovered: boolean;
-  twinData: TwinData | null;
-  twinHistory: TwinData[];
+  twinData: any | null;
+  twinHistory: any[];
   threatData: ThreatData | null;
   forensicsData: ForensicsReport | null;
   lastAnchorTime: number;
@@ -48,7 +50,7 @@ interface SocketState {
   attackBanner: string | null;
 }
 
-// Global state so multiple components share the same socket state
+let globalSocket: Socket | null = null;
 let globalState: SocketState = {
   connected: false,
   isAttackActive: false,
@@ -65,103 +67,43 @@ let globalState: SocketState = {
 };
 
 let listeners: Set<() => void> = new Set();
-
-function notify() {
-  listeners.forEach((fn) => fn());
-}
-
+function notify() { listeners.forEach((fn) => fn()); }
 function updateState(partial: Partial<SocketState>) {
   globalState = { ...globalState, ...partial };
   notify();
 }
 
-// Simulate live twin data stream
-let twinInterval: ReturnType<typeof setInterval> | null = null;
-let threatInterval: ReturnType<typeof setInterval> | null = null;
-let anchorInterval: ReturnType<typeof setInterval> | null = null;
+function initSocket() {
+  if (globalSocket) return;
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
+  globalSocket = io(backendUrl, { transports: ["websocket", "polling"] });
 
-function startSimulation() {
-  if (twinInterval) return;
+  globalSocket.on("connect", () => {
+    updateState({ connected: true });
+  });
 
-  // Twin data every 3s
-  twinInterval = setInterval(() => {
-    if (globalState.isAttackActive) return;
-    const twin: TwinData = {
-      temperature: 27 + Math.random() * 4,
-      humidity: 60 + Math.random() * 15,
-      pm25: 25 + Math.random() * 20,
-      traffic: Math.floor(1 + Math.random() * 5),
-      wind: 8 + Math.random() * 10,
+  globalSocket.on("disconnect", () => {
+    updateState({ connected: false });
+  });
+
+  globalSocket.on("twin_update", (data) => {
+    // Map backend live structure to UI expected shape
+    const uiData = {
+      temperature: data.weather?.temp ?? data.temperature ?? 0,
+      humidity: data.weather?.humidity ?? data.humidity ?? 0,
+      pm25: data.airQuality?.pm25 ?? data.pm25 ?? 0,
+      traffic: data.traffic?.congestionLevel ? (data.traffic.congestionLevel === 'FREE' ? 1 : data.traffic.congestionLevel === 'LIGHT' ? 2 : data.traffic.congestionLevel === 'MODERATE' ? 3 : 5) : 1,
+      wind: data.weather?.wind_speed ? data.weather.wind_speed * 3.6 : 0, // m/s to km/h
     };
-    const history = [...globalState.twinHistory, twin].slice(-20);
-    updateState({ twinData: twin, twinHistory: history });
-  }, 3000);
+    const history = [...globalState.twinHistory, uiData].slice(-20);
+    updateState({ twinData: uiData, twinHistory: history, lastAnchorTime: data.timestamp || Date.now() });
+  });
 
-  // Threat data every 5s
-  threatInterval = setInterval(() => {
-    const threats: ThreatEntry[] = Array.from({ length: 3 }, () => {
-      const domains = ["mal.xyz", "c2.hack.io", "phish.cc", "trojan.net", "exfil.bad", "ransom.dark"];
-      const types = ["C2", "PAYLOAD", "PHISHING", "EXFIL", "RANSOMWARE"];
-      return {
-        time: new Date().toLocaleTimeString("en-US", { hour12: false }),
-        url: domains[Math.floor(Math.random() * domains.length)],
-        threat: types[Math.floor(Math.random() * types.length)],
-        status: "BLOCKED",
-      };
-    });
-    updateState({
-      threatData: {
-        level: globalState.isAttackActive ? "CRITICAL" : "LOW",
-        activeUrls: Math.floor(200 + Math.random() * 100),
-        recent: threats,
-        blockedToday: Math.floor(1200 + Math.random() * 300),
-        lastUpdated: Date.now(),
-      },
-    });
-  }, 5000);
+  globalSocket.on("threat_update", (data) => {
+    updateState({ threatData: data });
+  });
 
-  // Anchor timestamp every 20s
-  anchorInterval = setInterval(() => {
-    updateState({ lastAnchorTime: Date.now() });
-  }, 20000);
-
-  // Mark connected
-  updateState({ connected: true });
-}
-
-function stopSimulation() {
-  if (twinInterval) clearInterval(twinInterval);
-  if (threatInterval) clearInterval(threatInterval);
-  if (anchorInterval) clearInterval(anchorInterval);
-  twinInterval = null;
-  threatInterval = null;
-  anchorInterval = null;
-}
-
-// Start on import
-if (typeof window !== "undefined") {
-  startSimulation();
-}
-
-export function useSocket() {
-  const [, setTick] = useState(0);
-
-  useEffect(() => {
-    const listener = () => setTick((t) => t + 1);
-    listeners.add(listener);
-    if (!twinInterval) startSimulation();
-    return () => {
-      listeners.delete(listener);
-    };
-  }, []);
-
-  const simulateAttack = useCallback(async () => {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (backendUrl) {
-      try {
-        await fetch(`${backendUrl.replace("ws", "http")}/simulate/attack`, { method: "POST" });
-      } catch {}
-    }
+  globalSocket.on("ATTACK_STARTED", (data) => {
     updateState({
       isAttackActive: true,
       isTamperInjected: false,
@@ -171,47 +113,80 @@ export function useSocket() {
       attackBanner: "⚠ INFRASTRUCTURE ATTACK IN PROGRESS",
     });
     if (typeof document !== "undefined") document.body.classList.add("attack-active");
-  }, []);
+  });
 
-  const simulateTamper = useCallback(async () => {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (backendUrl) {
-      try {
-        await fetch(`${backendUrl.replace("ws", "http")}/simulate/inject-tamper`, { method: "POST" });
-      } catch {}
-    }
-    updateState({
-      isTamperInjected: true,
-      tamperCount: globalState.tamperCount + 1,
-    });
-  }, []);
-
-  const simulateRecovery = useCallback(async () => {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (backendUrl) {
-      try {
-        await fetch(`${backendUrl.replace("ws", "http")}/simulate/recover`, { method: "POST" });
-      } catch {}
-    }
+  globalSocket.on("RECOVERY_COMPLETE", (payload) => {
     updateState({
       isAttackActive: false,
       isTamperInjected: false,
       isRecovered: true,
-      attackBanner: "✓ SYSTEM RESTORED // EVIDENCE ANCHORED ON-CHAIN",
-      forensicsData: {
-        confidence: 94,
-        tampered: [
-          { field: "temperature", from: "28.4°C", to: "450.0°C" },
-          { field: "pm25", from: "34 µg/m³", to: "0.001 µg/m³" },
-        ],
-        verdict: "DELIBERATE MANIPULATION DETECTED — Sensor values exceeded physical bounds during dark period. High confidence of coordinated infrastructure attack.",
-        txHash: "0xabc123def456abc123def456abc123def456abc123def456abc123def456abc1",
-        ipfsCid: "QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco",
-      },
+      attackBanner: payload.divergenceDetected ? "✓ SYSTEM RESTORED // EVIDENCE ANCHORED ON-CHAIN" : "✓ SYSTEM RESTORED // NO TAMPERING DETECTED",
     });
     if (typeof document !== "undefined") document.body.classList.remove("attack-active");
-    // Clear banner after 5s
     setTimeout(() => updateState({ attackBanner: null }), 5000);
+  });
+
+  globalSocket.on("FORENSIC_REPORT", (data) => {
+    updateState({
+      forensicsData: {
+        confidence: data.analysis.confidenceScore,
+        tampered: (data.analysis.tamperedFields || []).map((f: any) => ({
+          field: f.field, from: f.originalValue?.toString() || "unknown", to: f.tamperedValue?.toString() || "unknown"
+        })),
+        verdict: data.analysis.verdict,
+        txHash: data.polygonScanUrl ? data.polygonScanUrl.split('/').pop() : '0x...',
+        ipfsCid: data.ipfsCID,
+      }
+    });
+  });
+}
+
+if (typeof window !== "undefined") {
+  initSocket();
+}
+
+export function useSocket() {
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    const listener = () => setTick((t) => t + 1);
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  }, []);
+
+  const simulateAttack = useCallback(async () => {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
+    try {
+      await fetch(`${backendUrl}/api/simulate/attack`, { method: "POST" });
+    } catch (e) { console.error(e); }
+  }, []);
+
+  const simulateTamper = useCallback(async () => {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
+    try {
+      await fetch(`${backendUrl}/api/simulate/inject-tamper`, { method: "POST" });
+    } catch (e) { console.error(e); }
+    updateState({ isTamperInjected: true, tamperCount: globalState.tamperCount + 1 });
+  }, []);
+
+  const simulateRecovery = useCallback(async () => {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
+    try {
+      await fetch(`${backendUrl}/api/simulate/recover`, { method: "POST" });
+    } catch (e) { console.error(e); }
+  }, []);
+
+  const triggerAnchorTx = useCallback(async () => {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
+    try {
+      const res = await fetch(`${backendUrl}/api/agent/anchor`, { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        console.log("Anchor successful", data);
+      }
+    } catch (e) { console.error(e); }
   }, []);
 
   const dismissBanner = useCallback(() => {
@@ -223,6 +198,7 @@ export function useSocket() {
     simulateAttack,
     simulateTamper,
     simulateRecovery,
+    triggerAnchorTx,
     dismissBanner,
   };
 }

@@ -1,5 +1,5 @@
 /**
- * AntiGravity Backend — server.js
+ * ECLIPSIS Backend — server.js
  * Express + Socket.io + MongoDB + service orchestration
  */
 require('dotenv').config();
@@ -45,7 +45,7 @@ app.use(express.json());
 // ── Health check ────────────────────────────────────────────
 app.get('/', (_req, res) => {
   res.json({
-    service: 'AntiGravity Backend',
+    service: 'ECLIPSIS Backend',
     status: 'operational',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
@@ -109,7 +109,7 @@ async function bootstrap() {
   server.listen(PORT, '0.0.0.0', () => {
     console.log('');
     console.log('╔════════════════════════════════════════════════╗');
-    console.log('║           AntiGravity Backend v1.0.0           ║');
+    console.log('║           ECLIPSIS Backend v1.0.0           ║');
     console.log('╠════════════════════════════════════════════════╣');
     console.log(`║  HTTP  → http://localhost:${PORT}                ║`);
     console.log(`║  WS    → ws://localhost:${PORT}                  ║`);

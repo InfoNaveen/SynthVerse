@@ -26,6 +26,10 @@ const config: Config = {
         sans: ["Inter", "system-ui", "sans-serif"],
       },
       keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
         "pulse-green": {
           "0%, 100%": { boxShadow: "0 0 0 0 rgba(0, 255, 136, 0.4)" },
           "50%": { boxShadow: "0 0 0 8px rgba(0, 255, 136, 0)" },
@@ -77,6 +81,7 @@ const config: Config = {
         },
       },
       animation: {
+        marquee: 'marquee 30s linear infinite',
         "pulse-green": "pulse-green 2s ease-in-out infinite",
         "pulse-red": "pulse-red 2s ease-in-out infinite",
         flicker: "flicker 3s linear infinite",

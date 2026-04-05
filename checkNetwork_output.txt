@@ -1,0 +1,6 @@
+﻿Network: amoy
+Deployer: 0xcc61f9C775ca9576ba8063A0323F682Bd4DDC31a
+Balance: 0.001087652100267915 MATIC
+Nonce: 6
+ΓÜá∩╕Å LOW BALANCE ΓÇö get MATIC from:
+https://faucet.polygon.technology

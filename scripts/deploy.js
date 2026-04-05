@@ -1,4 +1,5 @@
-const { ethers, run } = require("hardhat");
+const hre = require("hardhat");
+const { ethers } = hre;
 const fs = require("fs");
 const path = require("path");
 
@@ -54,7 +55,7 @@ async function main() {
 
     try {
       console.log("  Verifying AntiGravityToken...");
-      await run("verify:verify", {
+      await hre.run("verify:verify", {
         address: tokenAddress,
         constructorArguments: [],
       });
@@ -65,7 +66,7 @@ async function main() {
 
     try {
       console.log("  Verifying AntiGravityAnchor...");
-      await run("verify:verify", {
+      await hre.run("verify:verify", {
         address: anchorAddress,
         constructorArguments: [tokenAddress],
       });
@@ -76,7 +77,7 @@ async function main() {
 
     try {
       console.log("  Verifying AntiGravityForensics...");
-      await run("verify:verify", {
+      await hre.run("verify:verify", {
         address: forensicsAddress,
         constructorArguments: [anchorAddress],
       });

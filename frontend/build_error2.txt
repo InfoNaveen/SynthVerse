@@ -1,0 +1,23 @@
+
+> antigravity-frontend@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.3
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+
+Failed to compile.
+
+./node_modules/ox/core/Cbor.ts:559:26
+Type error: Type 'Map<unknown, unknown>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+
+[0m [90m 557 |[39m   [36mexport[39m [36mfunction[39m map(value[33m:[39m [33mMap[39m[33m<[39m[33munknown[39m[33m,[39m unknown[33m>[39m)[33m:[39m [33mEncodable[39m {[0m
+[0m [90m 558 |[39m     [36mconst[39m entries[33m:[39m { key[33m:[39m [33mEncodable[39m[33m;[39m value[33m:[39m [33mEncodable[39m }[] [33m=[39m [][0m
+[0m[31m[1m>[22m[39m[90m 559 |[39m     [36mfor[39m ([36mconst[39m [k[33m,[39m v] [36mof[39m value)[0m
+[0m [90m     |[39m                          [31m[1m^[22m[39m[0m
+[0m [90m 560 |[39m       entries[33m.[39mpush({ key[33m:[39m getEncodable(k)[33m,[39m value[33m:[39m getEncodable(v) })[0m
+[0m [90m 561 |[39m     [36mconst[39m bodyLength [33m=[39m entries[33m.[39mreduce([0m
+[0m [90m 562 |[39m       (acc[33m,[39m entry) [33m=>[39m acc [33m+[39m entry[33m.[39mkey[33m.[39mlength [33m+[39m entry[33m.[39mvalue[33m.[39mlength[33m,[39m[0m
